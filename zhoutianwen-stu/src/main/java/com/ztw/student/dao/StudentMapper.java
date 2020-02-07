@@ -12,7 +12,7 @@ import com.xiaofeng.student.entity.Subject;
 
 public interface StudentMapper {
 	
-
+	List<Student> list(String name);
 	@Select("SELECT id,name FROM stu_area WHERE parentId=#{value}")
 	List<Area> listAreasByParentId(int parentId);
 

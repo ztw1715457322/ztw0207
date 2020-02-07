@@ -22,23 +22,23 @@ public class StuController {
 	@Autowired
 	StudentService stuService;
 	
-
 	@RequestMapping("list")
 	public String list(HttpServletRequest request,@RequestParam(defaultValue="1") int page,
-			@RequestParam(defaultValue="") String name) {
+			@RequestParam(defaultValue="") String name,@RequestParam(defaultValue="") int[] selSubId ) {
 		
-		PageInfo<Student> pageStudent = stuService.list(page,name);
+		PageInfo<Student> pageStudent = stuService.list(page,name,selSubId);
 		request.setAttribute("pageStudent", pageStudent);
+		
+		List<Subject> subjects = stuService.listAllSubjects();
+		request.setAttribute("subjects", subjects);
+				
 		
 		return "list";
 	}
 	
-
 	@RequestMapping("toAdd")
 	public String toAdd(HttpServletRequest request) {
-		// 获取中国的所有的直接子节点  也就是所有的省 和直辖市
 		List<Area> provinces= stuService.listAreasByParentId(1);
-		// 获取所有的选秀的课程
 		List<Subject> subjects = stuService.listAllSubjects();
 		
 		request.setAttribute("provinces", provinces);
@@ -46,8 +46,6 @@ public class StuController {
 		
 		return "add";
 	}
-	
-
 	@RequestMapping("add")
 	public String add(Student stu,int[] selSubId ) {
 		
@@ -57,11 +55,37 @@ public class StuController {
 		return "redirect:list";
 	}
 	
-
+	@RequestMapping("update")
+	public String update(Student stu,int[] selSubId ) {
+		
+		stuService.updateStudent(stu,selSubId);
+		
+		
+		return "redirect:list";
+	}
+	@RequestMapping("delBatch")
+	@ResponseBody
+	public String delBatch(@RequestParam(value="ids[]") int[] ids) {
+		stuService.delBatch(ids);
+		return "success";
+	}
+	
 	@RequestMapping("getAeas")
 	@ResponseBody
 	public List<Area> getAeas(int parentId){
 		List<Area> areas= stuService.listAreasByParentId(parentId);
 		return areas;
+	}
+	
+	@RequestMapping("toupdate")
+	public String toupdate(HttpServletRequest request,int id) {
+		Student stu = stuService.getById(id);
+		request.setAttribute("stu", stu);
+		List<Area> provinces= stuService.listAreasByParentId(1);
+		List<Subject> subjects = stuService.listAllSubjects();
+		request.setAttribute("provinces", provinces);
+		request.setAttribute("subjects", subjects);
+		return "update";
+		
 	}
 }
